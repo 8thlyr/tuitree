@@ -1,7 +1,19 @@
 # tuitree
 
-A small terminal dashboard for your git worktrees and GitHub pull requests, in the spirit of
-LazyGit. Built for Omarchy (Arch Linux), works on any Linux with `git`.
+[![CI](https://github.com/jonathancostin/tuitree/actions/workflows/ci.yml/badge.svg)](https://github.com/jonathancostin/tuitree/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/jonathancostin/tuitree)](https://github.com/jonathancostin/tuitree/releases)
+
+A terminal dashboard for your git worktrees and GitHub pull requests, in the spirit of LazyGit.
+
+![tuitree showing five agent worktrees with ahead/behind, sync and PR columns, then a PR's files and review conversation](docs/demo.gif)
+
+## Why
+
+If you run several coding agents at once, each one usually gets its own worktree and branch.
+After an hour you have five of them and no idea which are ahead, which fell behind `main`,
+which would conflict on merge, and which already landed as a squash-merged PR. tuitree puts
+all of that in one table per repo, next to each branch's PR and its review comments, and
+lets you sync or delete the finished ones in a batch.
 
 For each project you add, tuitree shows:
 
@@ -17,30 +29,43 @@ match the remote. The UI never waits for git or the network.
 
 ## Status and stack
 
-- Early (version 0.1.0). No CI; run the tests locally (see [Tests](#tests)).
+- Early (version 0.1.0). Linux is the main target; it also builds on macOS.
 - Rust (edition 2024) with [ratatui](https://ratatui.rs) 0.30, plus anyhow, libc, serde, serde_json and toml.
 - Runtime: `git` 2.38 or newer (for `git merge-tree --write-tree`); the GitHub CLI `gh` is optional and only needed for the PR view and the PR column.
 
 ## Install
 
-You need the Rust toolchain (`sudo pacman -S rustup && rustup default stable`) and `git`.
-For the PR view you also need the GitHub CLI, logged in:
+You need `git` 2.38 or newer. For the PR view and the PR column you also need the
+[GitHub CLI](https://cli.github.com), logged in (`gh auth login`).
+
+**Prebuilt binary** (Linux x86_64/aarch64, macOS Apple Silicon/Intel). Pick your target from
+the [latest release](https://github.com/jonathancostin/tuitree/releases/latest):
 
 ```sh
-sudo pacman -S github-cli
-gh auth login
+target=x86_64-unknown-linux-gnu   # or aarch64-unknown-linux-gnu, aarch64-apple-darwin, x86_64-apple-darwin
+curl -sL https://github.com/jonathancostin/tuitree/releases/latest/download/tuitree-v0.1.0-$target.tar.gz | tar xz
+install tuitree-v0.1.0-$target/tuitree ~/.local/bin/
 ```
 
-Then, from this directory:
+**With cargo** (current stable Rust):
 
 ```sh
-cargo install --path .
+cargo install --git https://github.com/jonathancostin/tuitree --locked
 ```
 
-This puts `tuitree` in `~/.cargo/bin`. Make sure that directory is on your `PATH`, then run:
+Or from a clone: `cargo install --path .`. Both put `tuitree` in `~/.cargo/bin`.
+
+Then run `tuitree` and press `a` to add a repository.
+
+### Try it without your own repos
+
+`demo/setup.sh` builds a throwaway repo with four agent worktrees and a fake `gh`, the same
+setup the GIF above was recorded from:
 
 ```sh
-tuitree
+demo/setup.sh /tmp/tuitree-demo
+HOME=/tmp/tuitree-demo XDG_CONFIG_HOME=/tmp/tuitree-demo/config \
+  PATH=/tmp/tuitree-demo/bin:$PATH tuitree
 ```
 
 ## Keys
@@ -206,6 +231,8 @@ Its screens go to `tests/artifacts/<date-time>/live_github_smoke/` and are copie
 - `src/git.rs`, `src/gh.rs`, `src/cmd.rs`: git and GitHub CLI calls. `src/worker.rs`: background work.
 - `src/config.rs`: project list. `src/model.rs`: data types. `src/ui.rs`: rendering.
 - `tests/e2e/`: the tmux-driven end-to-end tests and their fixtures.
+- `demo/`: the demo repo script and the vhs tape for `docs/demo.gif`.
+- `.github/workflows/`: CI (fmt, clippy, tests) and the tag-triggered release build.
 
 ## License
 
