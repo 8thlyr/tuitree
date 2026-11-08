@@ -47,6 +47,12 @@ curl -sL https://github.com/jonathancostin/tuitree/releases/latest/download/tuit
 install tuitree-v0.1.0-$target/tuitree ~/.local/bin/
 ```
 
+**Homebrew** (macOS or Linux):
+
+```sh
+brew install jonathancostin/tap/tuitree
+```
+
 **With cargo** (current stable Rust):
 
 ```sh
