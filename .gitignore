@@ -3,3 +3,4 @@
 /tests/artifacts/
 # live smoke captures can contain data from private repositories
 /smoke/
+/demo/.run/
