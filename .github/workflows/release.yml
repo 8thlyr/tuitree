@@ -52,5 +52,12 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "$GITHUB_REF_NAME" -R "$GITHUB_REPOSITORY" \
-            --title "$GITHUB_REF_NAME" --generate-notes tuitree-*.tar.gz*
+          # A tag can be pushed again (a rewritten history, a moved tag), and the
+          # release from the first push is still there. Update its assets instead
+          # of failing on "release already exists".
+          if gh release view "$GITHUB_REF_NAME" -R "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release upload "$GITHUB_REF_NAME" -R "$GITHUB_REPOSITORY" --clobber tuitree-*.tar.gz*
+          else
+            gh release create "$GITHUB_REF_NAME" -R "$GITHUB_REPOSITORY" \
+              --title "$GITHUB_REF_NAME" --generate-notes tuitree-*.tar.gz*
+          fi
