@@ -33,6 +33,34 @@ match the remote. The UI never waits for git or the network.
 - Rust (edition 2024) with [ratatui](https://ratatui.rs) 0.30, plus anyhow, libc, serde, serde_json and toml.
 - Runtime: `git` 2.38 or newer (for `git merge-tree --write-tree`); the GitHub CLI `gh` is optional and only needed for the PR view and the PR column.
 
+## How it works
+
+- **UI loop.** `main` builds the app, then loops: draw, `event::poll` for up to 100ms, send key
+  and mouse events to the app state, drain the update channel. It redraws on every tick whether
+  or not anything changed, which is what keeps the spinner turning and the "fetched 12s ago"
+  text current. Everything is a plain `std::thread`; there is no async runtime and no tokio.
+- **Lanes.** Each project gets a *lane*: one thread, started on first use, that takes tasks one
+  at a time because git locks the repository. A refresh (fetch and reload) and every queued
+  delete or sync go through that lane, so they cannot race each other; lanes of different
+  projects run in parallel. Within one reload the per-worktree git commands also run up to eight
+  at a time.
+- **Messages.** Lanes and PR loaders send `Update` values over one std mpsc channel: project
+  path, generation number, and a kind (worktrees, fetch result, activity, PRs, PR detail, job
+  started or finished). The loop applies them to the app state between ticks. PR updates carry
+  the generation of the reload that asked for them, so a late answer from an older reload is
+  ignored instead of overwriting newer data. PR lists and PR details load on their own threads.
+- **Nothing blocks the UI.** `git fetch`, the `git merge-tree` conflict check and the single
+  `gh api graphql` request behind the PR column all run off the UI thread, and the fetch and that
+  request run at the same time. Opening a PR loads its files and conversation on another thread
+  again. The UI side only ever waits 100ms, so the table keeps repainting while git works.
+- **Child processes.** git and gh are run as child processes rather than linked as libraries, so
+  the user's own git config, credential helper and `gh auth login` just work. Children get no
+  stdin and their own session, with the prompting variables set, so a git or gh that wants a
+  password fails fast instead of grabbing the terminal.
+- **Terminal restore.** `ratatui::init()` installs a panic hook that restores the terminal.
+  tuitree wraps it in its own hook that turns mouse capture off first, so a panic leaves a usable
+  shell behind.
+
 ## Install
 
 You need `git` 2.38 or newer. For the PR view and the PR column you also need the
