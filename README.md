@@ -1,7 +1,7 @@
 # tuitree
 
-[![CI](https://github.com/jonathancostin/tuitree/actions/workflows/ci.yml/badge.svg)](https://github.com/jonathancostin/tuitree/actions/workflows/ci.yml)
-[![Release](https://img.shields.io/github/v/release/jonathancostin/tuitree)](https://github.com/jonathancostin/tuitree/releases)
+[![CI](https://github.com/8thlyr/tuitree/actions/workflows/ci.yml/badge.svg)](https://github.com/8thlyr/tuitree/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/8thlyr/tuitree)](https://github.com/8thlyr/tuitree/releases)
 
 A terminal dashboard for your git worktrees and GitHub pull requests, in the spirit of LazyGit.
 
@@ -39,11 +39,11 @@ You need `git` 2.38 or newer. For the PR view and the PR column you also need th
 [GitHub CLI](https://cli.github.com), logged in (`gh auth login`).
 
 **Prebuilt binary** (Linux x86_64/aarch64, macOS Apple Silicon/Intel). Pick your target from
-the [latest release](https://github.com/jonathancostin/tuitree/releases/latest):
+the [latest release](https://github.com/8thlyr/tuitree/releases/latest):
 
 ```sh
 target=x86_64-unknown-linux-gnu   # or aarch64-unknown-linux-gnu, aarch64-apple-darwin, x86_64-apple-darwin
-curl -sL https://github.com/jonathancostin/tuitree/releases/latest/download/tuitree-v0.1.0-$target.tar.gz | tar xz
+curl -sL https://github.com/8thlyr/tuitree/releases/latest/download/tuitree-v0.1.0-$target.tar.gz | tar xz
 install tuitree-v0.1.0-$target/tuitree ~/.local/bin/
 ```
 
@@ -56,7 +56,7 @@ brew install jonathancostin/tap/tuitree
 **With cargo** (current stable Rust):
 
 ```sh
-cargo install --git https://github.com/jonathancostin/tuitree --locked
+cargo install --git https://github.com/8thlyr/tuitree --locked
 ```
 
 Or from a clone: `cargo install --path .`. Both put `tuitree` in `~/.cargo/bin`.
